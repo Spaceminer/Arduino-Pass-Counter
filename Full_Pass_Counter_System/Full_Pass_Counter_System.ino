@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <SD.h>
-#include <File.h>
 LiquidCrystal_I2C lcd(0x3F,20,4);
 
 //*********System Variables**********\\
@@ -65,6 +64,7 @@ void setup()
   pinMode(right, INPUT); //Set input pins ot INPUT
   pinMode(middle, INPUT);
   pinMode(left, INPUT);
+  pinMode(10, OUTPUT);
   lcd.init(); //Initiate LCD
   lcd.backlight();
   if (!SD.begin(10)) {
@@ -78,11 +78,25 @@ void setup()
   SD.mkdir("1");
   SD.mkdir("2");
   currentFile = SD.open("1/name.txt", FILE_WRITE);
-  currentFile.print("Barsotti");
-  currentFile.close();
+  if(currentFile)
+  {
+    currentFile.print("Barsotti");
+    currentFile.close();
+  }
+  else
+  {
+    Serial.print("Wamp");
+  }
   currentFile = SD.open("2/name.txt", FILE_WRITE);
-  currentFile.print("Sherman");
-  currentFile.close();
+  if(currentFile)
+  {
+    currentFile.print("Sherman");
+    currentFile.close();
+  }
+  else
+  {
+    Serial.print("Wamp");
+  }
 }
   
   
@@ -540,7 +554,7 @@ void allResetDisplay()
   lcd.print("--**Totals reset**--");
 }
 
-void openFileByNumber(String fileName)
+char* openFileByNumber(String fileName)
 {
   String tempString = String(name);
   char fileToOpen[15];
@@ -550,22 +564,21 @@ void openFileByNumber(String fileName)
   strcat(fileToOpen, "/");
   strcat(fileToOpen, tempArray);
   strcat(fileToOpen, ".txt");
-  currentFile = SD.open(fileToOpen, FILE_READ);
+  return(fileToOpen);
 }
 
 void Home()
 {
   lcd.clear();
-  openFileByNumber("name");
+  currentFile = SD.open(openFileByNumber("name"), FILE_READ);
   while(currentFile.available()) 
   {
-    lcd.print(currentFile.read());
-    Serial.print(currentFile.read());
+    lcd.write(currentFile.read());
   }
   currentFile.close();
   lcd.setCursor(0,1);
   lcd.print("Passes:");
-  openFileByNumber("passes");
+  currentFile = SD.open(openFileByNumber("passes"), FILE_READ);
   while(currentFile.available()) 
   {
     lcd.print(currentFile.read());
@@ -573,7 +586,7 @@ void Home()
   currentFile.close();
   lcd.setCursor(0,2);
   lcd.print("Total:");
-  openFileByNumber("total");
+  currentFile = SD.open(openFileByNumber("total"), FILE_READ);
   while(currentFile.available()) 
   {
     lcd.print(currentFile.read());
