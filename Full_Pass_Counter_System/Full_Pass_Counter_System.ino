@@ -74,29 +74,7 @@ void setup()
   lcd.setCursor(2,0);
   lcd.print("Sherman  Arduino"); //Show Title
   lcd.setCursor(2,2);
-  lcd.print("Ski Pass Counter");
-  SD.mkdir("1");
-  SD.mkdir("2");
-  currentFile = SD.open("1/name.txt", FILE_WRITE);
-  if(currentFile)
-  {
-    currentFile.print("Barsotti");
-    currentFile.close();
-  }
-  else
-  {
-    Serial.print("Wamp");
-  }
-  currentFile = SD.open("2/name.txt", FILE_WRITE);
-  if(currentFile)
-  {
-    currentFile.print("Sherman");
-    currentFile.close();
-  }
-  else
-  {
-    Serial.print("Wamp");
-  }
+  lcd.print("Ski Pass Counter"); 
 }
   
   
@@ -308,53 +286,64 @@ void scrollDown()
 
 void addPass()
 {
-  switch(name)
+  int currentPasses;
+  currentFile = SD.open(openFileByNumber("passes"), FILE_READ); //open file
+  while(currentFile.available()) //make var current
   {
-    case 1 : 
-      barsottiPasses += 1;
-      barsottiTotal += 1;
-    break;
-    
-    case 2 : 
-      edgellPasses += 1;
-      edgellTotal += 1;
-    break;
-    
-    case 3 : 
-      grubbsPasses += 1;
-      grubbsTotal += 1;
-    break;
-    
-    case 4 : 
-      hindmarshPasses += 1;
-      hindmarshTotal += 1;
-    break;
-    
-    case 5 : 
-      okainPasses += 1;
-      okainTotal += 1;
-    break;
-    
-    case 6 : 
-      quickPasses += 1;
-      quickTotal += 1;
-    break;
-    
-    case 7 : 
-      shermanPasses += 1;
-      shermanTotal += 1;
-    break;
-    
-    case 8 : 
-      smithPasses += 1;
-      smithTotal += 1;
-    break;
-    
-    case 9 :
-      clubPasses += 1;
-      clubTotal += 1;
-    break;
+    currentPasses += currentFile.read();
   }
+  currentFile.close();
+  SD.remove(openFileByNumber("passes")); //delete file
+  currentFile = SD.open(openFileByNumber("passes"), FILE_WRITE); //new file
+  currentPasses += 1; //up passes
+  currentFile.print(currentPasses); //save new number
+//  switch(name)
+//  {
+//    case 1 : 
+//      barsottiPasses += 1;
+//      barsottiTotal += 1;
+//    break;
+//    
+//    case 2 : 
+//      edgellPasses += 1;
+//      edgellTotal += 1;
+//    break;
+//    
+//    case 3 : 
+//      grubbsPasses += 1;
+//      grubbsTotal += 1;
+//    break;
+//    
+//    case 4 : 
+//      hindmarshPasses += 1;
+//      hindmarshTotal += 1;
+//    break;
+//    
+//    case 5 : 
+//      okainPasses += 1;
+//      okainTotal += 1;
+//    break;
+//    
+//    case 6 : 
+//      quickPasses += 1;
+//      quickTotal += 1;
+//    break;
+//    
+//    case 7 : 
+//      shermanPasses += 1;
+//      shermanTotal += 1;
+//    break;
+//    
+//    case 8 : 
+//      smithPasses += 1;
+//      smithTotal += 1;
+//    break;
+//    
+//    case 9 :
+//      clubPasses += 1;
+//      clubTotal += 1;
+//    break;
+//  }
 }
 
 void removePass()
@@ -581,7 +570,7 @@ void Home()
   currentFile = SD.open(openFileByNumber("passes"), FILE_READ);
   while(currentFile.available()) 
   {
-    lcd.print(currentFile.read());
+    lcd.write(currentFile.read());
   }
   currentFile.close();
   lcd.setCursor(0,2);
@@ -589,7 +578,7 @@ void Home()
   currentFile = SD.open(openFileByNumber("total"), FILE_READ);
   while(currentFile.available()) 
   {
-    lcd.print(currentFile.read());
+    lcd.write(currentFile.read());
   }
   currentFile.close();
   if(tracking == true)
